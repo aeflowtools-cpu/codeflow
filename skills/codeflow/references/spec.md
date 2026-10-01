@@ -114,7 +114,7 @@ Any property marked **A** below is either a static value or keyframes:
 - **Single file** `<Name>.codeflow`: a zip holding `codeflow.json`, `README.txt` and `assets/*`.
 - **Folder** `<Name> (CodeFlow)/`: the same layout unzipped, better for big videos.
 - The CodeFlow panel opens either one: the file, the folder, or its `codeflow.json`.
-- **Fonts are shipped** in `assets/fonts/` (`fonts[ps].file` points there). On build, the panel installs any that After Effects doesn't have (per user, no admin needed), so text stays real, editable text in the right font. A font is left out only when its own licence flag forbids sharing (OS/2 fsType = restricted); `README.txt` lists every font and whether it is included.
+- **Fonts are shipped** in `assets/fonts/` (`fonts[ps].file` points there). On build, the panel installs any that After Effects doesn't have (per user, no admin needed), so text stays real, editable text in the right font. A font is left out only when its own license flag forbids sharing (OS/2 fsType = restricted); `README.txt` lists every font and whether it is included.
 - **Text is always text.** Never ship words as images, even when the source had them as outlines (see the skill's convert guide: outlined text is recovered as text).
 
 ## Masks

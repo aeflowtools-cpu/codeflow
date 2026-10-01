@@ -39,7 +39,7 @@ function readNames(buf, base) {
     if (!(id in out) || plat === 3) out[id] = str;
   }
   const weight = os2Off >= 0 ? buf.readUInt16BE(os2Off + 4) : 400;
-  // OS/2 fsType: 0x0002 alone = "Restricted License embedding" (the font's licence says: do not share it)
+  // OS/2 fsType: 0x0002 alone = "Restricted License embedding" (the font's license says: do not share it)
   const fsType = os2Off >= 0 ? buf.readUInt16BE(os2Off + 8) : 0;
   const style = out[17] || out[2] || 'Regular';
   return { ps: out[6], family: out[16] || out[1], style, full: out[4], weight, italic: /italic|oblique/i.test(style), variable, shareable: (fsType & 0x000F) !== 0x0002 };

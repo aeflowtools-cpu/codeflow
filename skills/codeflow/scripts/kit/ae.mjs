@@ -44,7 +44,9 @@ function callOne(b, route, body) {
       res.on('end', () => {
         const text = Buffer.concat(chunks).toString('utf8');
         let data; try { data = JSON.parse(text); } catch { data = { ok: false, raw: text }; }
-        if (res.statusCode >= 400) reject(new Error(`bridge ${route} -> ${res.statusCode}: ${data.error || text}`));
+        // 402 = no CodeFlow license / free builds used up: pass the panel's message through as-is for the user
+        if (res.statusCode === 402) reject(new Error(data.error || 'CodeFlow license needed: open Window > Extensions > CodeFlow in After Effects.'));
+        else if (res.statusCode >= 400) reject(new Error(`bridge ${route} -> ${res.statusCode}: ${data.error || text}`));
         else resolve(data);
       });
     });

@@ -1,7 +1,7 @@
 # CodeFlow for Claude
 
 **Turn motion videos made with Claude into native, editable After Effects projects.**
-By [AE Flow Tools](https://aeflowtools.com) · version 0.2.0
+By [AE Flow Tools](https://aeflowtools.com) · version 0.2.1
 
 Ask Claude to *"make it for CodeFlow"* and you get a single **`.codeflow`** file. Open it in the **CodeFlow** panel in After Effects, click **Build**, and get real comps: shape, text and footage layers, precomps per scene, and true bezier keyframes in the Graph Editor. It looks the same as the video Claude made.
 
@@ -19,6 +19,8 @@ In Claude Code, run these two commands once:
 ```
 
 Restart Claude Code. The first time you use it, CodeFlow downloads its tools (about 80 MB, one time per computer).
+
+**Where to run it:** on your own computer, in the **Claude desktop app's Code tab with Local selected** or in the `claude` terminal app. That is fast and Claude can see your files. The Code tab on claude.ai in a browser (and the desktop app's Cloud option) runs on Anthropic's servers: it can't see your files and reinstalls the tools every session, so it is much slower.
 
 You also need:
 - **Node.js 18 or newer** ([nodejs.org](https://nodejs.org)),

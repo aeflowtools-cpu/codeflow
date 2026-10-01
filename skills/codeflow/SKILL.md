@@ -12,6 +12,14 @@ CodeFlow gives Claude-made motion videos a way into After Effects.
 
 Paths below are relative to this skill folder: `scripts/kit/…`, `references/…`. Run the kit with Node.
 
+## Where to run it
+CodeFlow needs Node, a browser and ffmpeg on a computer that also holds the user's files. So where Claude is running matters a lot:
+- **Best: the user's own computer.** The Claude desktop app's **Code** tab with **Local** selected, or Claude Code in a terminal or IDE. It is fast, it can open the user's files, and the tools are installed once.
+- **Slow and limited: a cloud session.** The Code tab on claude.ai in a browser, or the desktop app set to **Cloud**, runs on Anthropic's servers. It cannot see the user's folders or their After Effects, and every new session downloads the tools again.
+- **Not suitable: normal Claude chat.** It cannot run the kit, so nothing can be previewed or checked.
+
+If you notice a cloud session (the user's folders are not there, or setup keeps downloading things), say so once and suggest switching to the desktop app's Code tab with **Local** selected. Then carry on if they prefer.
+
 ## Step 0: setup (first time on a machine)
 ```bash
 node scripts/setup.mjs
@@ -21,6 +29,8 @@ This installs the two dependencies (playwright-core, ffmpeg-static) and checks C
 ## Which job is this?
 - **Convert:** the user already has a motion video Claude made as HTML/SVG/CSS/JS. It may be a file in their folder, code earlier in the conversation, or an HTML plus its rendered MP4. Read `references/convert.md` and follow it.
 - **Author:** the user wants a new video that should also open in After Effects. Read `references/author.md` and follow it.
+
+Authoring is cheaper and more exact than converting, because the preview and After Effects share one source and there is no mapping step. If the user has no finished video yet, author. If they have an HTML video, convert it, and mention that their next video is faster to make directly in CodeFlow.
 
 For both jobs, keep `references/kit-api.md` open while writing code. Read `references/spec.md` only when you need exact file-format details.
 
@@ -47,20 +57,22 @@ The player behaves like After Effects, not like a web page. These are the differ
    - rasterise static parts with `scripts/kit/snap.mjs` into an image layer (never text: see 5);
    - tell the user what came in as a picture instead of live layers.
 
-## Always verify before delivering
-Render the CodeFlow version and look at it; never deliver blind.
-- **Converting:** `node scripts/kit/compare.mjs <spec> <original.html|mp4> <outDir> <times>` gives SSIM per frame. Aim for a mean of **≥ 0.97** with no frame below ~0.93.
-  - `sheet.jpg` shows the **worst frames first** (original | CodeFlow | difference ×4).
-  - Zoom into a suspicious area with `node scripts/kit/zoom.mjs <outDir>/original/o_T.png <outDir>/codeflow/t_T.jpg x,y,w,h zoom.png`.
-  - Fix, re-run, and repeat. Differences that are only a 1-2 px text anti-alias halo are fine.
-  - Check dense times too (every 0.2 s) before delivering, not only the moments you tuned.
-- **Authoring:** render contact sheets (`node scripts/kit/render.mjs <spec> sheet out.jpg t1,t2,…`) and review them the way a motion designer would.
+## Always verify before delivering (Quick by default)
+Render the CodeFlow version and check it; never deliver blind. Checking is where most time and tokens go, so use the cheap way unless the user wants more.
+- **Converting, Quick (the default).** Check about 10 times: for each scene one settled moment and one mid-motion moment. Run
+  `node scripts/kit/compare.mjs <spec> <original.html|mp4> <outDir> <times> --quick`.
+  It prints **one summary line and a VERDICT**.
+  - **GOOD ENOUGH** (mean ≥ 0.97, no frame below 0.93): deliver. Do not open any images.
+  - **NEEDS WORK:** open only `<outDir>/sheet.jpg` (the worst frames: original | CodeFlow | difference ×4), fix the cause, run again. At most **2 fix rounds**, then deliver and tell the user honestly what still differs. Differences that are only a 1-2 px text anti-alias halo are fine.
+  - Zoom into a suspicious area only if needed: `node scripts/kit/zoom.mjs <outDir>/original/o_T.png <outDir>/codeflow/t_T.jpg x,y,w,h zoom.png`.
+- **Converting, Exact.** Only when the user asks for pixel-perfect: more check times, a dense check every 0.2 s, zoomed diffs, and iterate until the mean is ≥ 0.97 with no frame below ~0.93. Run `compare.mjs` without `--quick`.
+- **Authoring:** render one contact sheet of settled and in-between moments (`node scripts/kit/render.mjs <spec> sheet out.jpg t1,t2,…`) and review it the way a motion designer would.
 
 ## Deliver
 1. Pack the deliverable:
    - **One file:** `node scripts/kit/pack.mjs <spec.codeflow.json> [out.codeflow]`. Easy to share.
    - **A folder:** `node scripts/kit/pack.mjs <spec.codeflow.json> --folder [parentDir]` makes `<Name> (CodeFlow)/`. Better for heavy video projects (roughly > 300 MB).
-   - Both contain the spec, every image, video and audio file, **and the font files**: the CodeFlow panel installs any font the other computer is missing, so the text opens in the right font. A font is left out only if its own licence flag forbids sharing; pack prints `FONTS NOT INCLUDED` then.
+   - Both contain the spec, every image, video and audio file, **and the font files**: the CodeFlow panel installs any font the other computer is missing, so the text opens in the right font. A font is left out only if its own license flag forbids sharing; pack prints `FONTS NOT INCLUDED` then.
    - Pack prints `SAVED TO: <full path>` and `FOLDER: <full path>`.
 2. Also render the preview MP4 when useful: `node scripts/kit/render.mjs <spec> video preview.mp4`. It mixes the spec's own audio: audio layers plus clips with `audio: true`. Use `--audio vo.wav` to use one file instead.
 3. Tell the user, plainly:
@@ -70,8 +82,9 @@ Render the CodeFlow version and look at it; never deliver blind.
    - anything that came in as a picture instead of live layers;
    - the match score if you converted.
 
-**Optional direct build:** if you are running on the user's own computer and After Effects is open with CodeFlow, `node scripts/kit/ae.mjs build <spec>` builds straight into their open project. Ask first: it adds comps to whatever project they have open.
+**Optional direct build:** if you are running on the user's own computer and After Effects is open with CodeFlow, `node scripts/kit/ae.mjs build <spec>` builds straight into their open project. Ask first: it adds comps to whatever project they have open. It uses their CodeFlow license (or one of the 3 free builds); if it answers with a license message, show that message to the user as-is, and deliver the `.codeflow` file normally.
 
 ## Working style
+- **Keep it cheap.** The references already contain what you need, so do not open the kit's source files. If a function is unclear, call it on a tiny example. Probe only the elements and times you need (`--root`) instead of dumping whole pages. Write the conversion script once, scene by scene, and look at images sparingly (the verdict first, the worst frames second).
 - Build in parts for long videos (15-20 s each) so previews stay fast to check.
 - Name layers the way a motion designer would ("Card", "Row 3 - Pill", "CARD RIG"), and use one precomp per scene. The After Effects project is the product the user will live in, so its structure matters as much as the pixels.

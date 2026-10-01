@@ -36,7 +36,7 @@ function collect(specFile) {
     delete f.file;
     if (!src || !fs.existsSync(src)) { fontLines.push(`  - ${ps}  (NOT included: font file not found - install it yourself)`); fontsMissing.push(ps); continue; }
     const faces = readFontFile(src), info = faces.find(n => n.ps === ps) || faces[0];
-    if (info && !info.shareable) { fontLines.push(`  - ${ps}  (NOT included: its licence does not allow sharing - install it yourself)`); fontsMissing.push(ps); continue; }
+    if (info && !info.shareable) { fontLines.push(`  - ${ps}  (NOT included: its license does not allow sharing - install it yourself)`); fontsMissing.push(ps); continue; }
     let base = path.basename(src), n = 1;
     while (used.has('fonts/' + base.toLowerCase())) base = path.basename(src, path.extname(src)) + '_' + (++n) + path.extname(src);
     used.add('fonts/' + base.toLowerCase());

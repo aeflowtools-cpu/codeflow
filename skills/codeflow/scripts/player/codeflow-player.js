@@ -143,7 +143,7 @@
     var self = this;
     this.ctx = ctx; this.spec = spec; this.compNode = compNode;
     this.tr = spec.transform || {};
-    this.outer = el('g', { 'data-layer': spec.name || spec.id }, parentEl);
+    this.outer = el('g', { 'data-layer': spec.name || spec.id, 'data-id': spec.id, 'data-type': spec.type }, parentEl);
     var host = this.outer;
     this.fx = null;
     var fxList = (spec.effects || []).filter(function (e) { return e.type !== 'ramp'; });
@@ -319,8 +319,20 @@
     n = Math.max(0, Math.min(f.count - 1, n));
     if (v.cur === n) return;
     v.cur = n;
-    var url = f.base + 'f_' + pad5(n + 1) + '.' + f.ext;
     var ctx = this.ctx;
+    if (f.frame) {
+      // frame source supplied by the host (the web editor decodes in the browser): frame(n) -> url | Promise<url>
+      ctx.pending.push(Promise.resolve(f.frame(n)).then(function (u) {
+        if (v.cur !== n || !u) return;
+        return new Promise(function (res) {
+          var done = function () { v.el.removeEventListener('load', done); v.el.removeEventListener('error', done); res(); };
+          v.el.addEventListener('load', done); v.el.addEventListener('error', done);
+          v.el.setAttributeNS(XL, 'href', u);
+        });
+      }));
+      return;
+    }
+    var url = f.base + 'f_' + pad5(n + 1) + '.' + f.ext;
     ctx.pending.push(new Promise(function (res) {
       var done = function () { v.el.removeEventListener('load', done); v.el.removeEventListener('error', done); res(); };
       v.el.addEventListener('load', done); v.el.addEventListener('error', done);
@@ -331,6 +343,7 @@
   // ---------- public API ----------
   // CF.load(spec, { container, assetBase: 'file:///D:/proj/', fonts: { 'Poppins-Medium': base64 },
   //                 videoFrames: { assetId: { base: 'file:///…/', ext: 'jpg', count, fps } } }) -> Promise<player>
+  //   videoFrames[id] may instead be { count, fps, frame: n => url | Promise<url> } (frame n is 0-based)
   CF.load = function (spec, opts) {
     opts = opts || {};
     var ctx = { spec: spec, images: [], compById: {}, pending: [], videoFrames: opts.videoFrames || {} };

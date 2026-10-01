@@ -38,7 +38,7 @@ Read the entry HTML and its scripts, and answer these before writing anything:
 - **Outlined text:** if words in the source are `<path>` outlines (SVG frames exported from Figma with "Outline text" on), there is no text or font to recover. Never deliver them as images; ask the user to re-export with *Outline text* unchecked, or for the font name (see SKILL.md rule 5).
 
 ## 2. Reference frames
-Pick check times: for every scene, one **settled** moment plus one or two **mid-motion** moments.
+Pick check times: for every scene, one **settled** moment plus one **mid-motion** moment (about 10 times in total is plenty for the default Quick check; more only for an Exact check).
 
 ```bash
 node scripts/kit/original.mjs video.html refs 0.5,1.3,2.2,5.0,7.2 --size 1920x1080
@@ -163,11 +163,11 @@ await closeBrowser();
 ## 7. Compare, find the cause, fix
 ```bash
 node my-video.mjs
-node scripts/kit/compare.mjs my-video.codeflow.json /path/video.html cmp 0.5,1.3,2.2,5.0,7.2
+node scripts/kit/compare.mjs my-video.codeflow.json /path/video.html cmp 0.5,1.3,2.2,5.0,7.2 --quick
 node scripts/kit/zoom.mjs cmp/original/o_2.20.jpg cmp/codeflow/t_2.20.jpg 600,300,400,200 zoom.png
 ```
 
-`cmp/sheet.jpg` shows the **worst frames first**: original | CodeFlow | difference ×4, where black means identical. Read the difference column like this:
+`--quick` prints one summary line and a **VERDICT**. If it says GOOD ENOUGH, deliver and open nothing. If it says NEEDS WORK, open only `cmp/sheet.jpg`. It shows the **worst frames first**: original | CodeFlow | difference ×4, where black means identical. Read the difference column like this:
 
 | What you see | Usual cause |
 |---|---|
@@ -180,7 +180,8 @@ node scripts/kit/zoom.mjs cmp/original/o_2.20.jpg cmp/codeflow/t_2.20.jpg 600,30
 | Text outlines only | 1-2 px anti-aliasing (or a faux-bold weight, see §1). Acceptable |
 | Text shifted | baseline: use `layoutBaseline`/`baseline`; use the line centre for centred text |
 
-Iterate until the mean SSIM is ≥ 0.97, with no frame below ~0.93. Then run a **dense check** (every 0.2 s) before delivering.
+**Quick (default):** stop as soon as the verdict is GOOD ENOUGH (mean SSIM ≥ 0.97, no frame below 0.93). Do at most 2 fix rounds; if it still says NEEDS WORK, deliver anyway and tell the user honestly which parts differ.
+**Exact (only if the user asks for pixel-perfect):** iterate on more check times (drop `--quick`), then run a **dense check** (every 0.2 s) before delivering.
 
 ## 8. Pack and deliver
 ```bash

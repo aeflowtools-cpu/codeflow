@@ -123,7 +123,7 @@ drift(l, 'transform.position', [ax, ay], period, t0, t1)
 | `node scripts/kit/original.mjs video.html dir t1,t2 [--size WxH] [--seek auto\|fn\|gsap\|waapi\|clock]` | stills of the user's original HTML video |
 | `node scripts/kit/probe.mjs video.html t out.json [--root sel]` | real layout of the original at time t: `box` (on screen), `layout` (before transforms), `baseline`/`layoutBaseline`, `usedFonts`/`fauxBold` |
 | `node scripts/kit/snap.mjs video.html selector t out.png` | rasterise one element (fallback for non-native parts) |
-| `node scripts/kit/compare.mjs spec original.html\|.mp4 outDir t1,t2 [--offset s] [--worst 8] [--all]` | SSIM per frame; `sheet.jpg` = worst frames first |
+| `node scripts/kit/compare.mjs spec original.html\|.mp4 outDir t1,t2 [--quick] [--offset s] [--worst 8] [--all]` | SSIM per frame; `sheet.jpg` = worst frames first. **`--quick`: the cheap default, one summary line + a VERDICT, pictures only for the worst 2 frames** |
 | `node scripts/kit/zoom.mjs original.png codeflow.jpg x,y,w,h out.png [scale]` | magnified original / CodeFlow / difference of one region |
 | `node scripts/kit/pack.mjs spec [out.codeflow]` | the single-file deliverable (assets + font files); prints `SAVED TO:` / `FOLDER:` full paths |
 | `node scripts/kit/pack.mjs spec --folder [parentDir]` | the same as a folder `<Name> (CodeFlow)/` (heavy video projects) |
