@@ -1,0 +1,11 @@
+{
+  "name": "codeflow-kit",
+  "version": "0.2.0",
+  "private": true,
+  "description": "CodeFlow by aeflowtools: author/convert motion videos into .codeflow files for the CodeFlow After Effects extension",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright-core": "^1.47.0"
+  }
+}

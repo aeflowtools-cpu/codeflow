@@ -1,0 +1,14 @@
+{
+  "name": "aeflowtools",
+  "owner": {
+    "name": "AE Flow Tools"
+  },
+  "description": "After Effects tools by AE Flow Tools (aeflowtools.com).",
+  "plugins": [
+    {
+      "name": "codeflow",
+      "source": "./",
+      "description": "Turn motion videos made with Claude (HTML, SVG, CSS, GSAP, video clips) into native, editable After Effects comps with the CodeFlow extension by AE Flow Tools."
+    }
+  ]
+}
