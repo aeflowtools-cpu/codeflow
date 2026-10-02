@@ -18,7 +18,7 @@ window.seek = t => { playing = false; realSeek(t); }; window.DURATION = DURATION
 ## Make `seek(t)` pure
 - Same `t` → same picture, in any order (the converter may jump around). Never accumulate state between calls.
 - Randomness: use a seeded function, e.g. `const rnd = i => { const x = Math.sin(i * 127.1) * 43758.5453; return x - Math.floor(x); };`.
-- No `Date.now()`, no `setTimeout` that changes the picture, no CSS `transition` / `animation`, no `<video>` playback.
+- No `Date.now()`, no `setTimeout` that changes the picture, no CSS `transition` / `animation`. Video clips are driven by setting `currentTime` inside `seek` (see "Video clips"), never by `play()`.
 - Show / hide scenes with `display` (`el.style.display = on ? 'block' : 'none'`), and also set opacity: layers only exist while visible, which keeps the After Effects timeline tidy.
 - Rebuilding DOM inside `seek` (innerHTML) works, but elements are matched by their position in the page, so keep the structure stable. Prefer fixed elements whose style you change.
 
@@ -56,6 +56,27 @@ function syncSound(t, on) {
   }
 }
 ```
+
+## Video clips
+`<video>` elements come into After Effects as footage layers, placed and sized exactly like in the page. Write the tag, style it like any box, and set its time from `seek(t)` (the converter reads the time you set, frame by frame):
+```html
+<video id="screen" src="assets/screen.mp4" muted preload="auto" playsinline
+       style="position:absolute;left:100px;top:100px;width:800px;height:450px;object-fit:cover;border-radius:24px;box-shadow:0 30px 60px rgba(0,0,0,.5)"></video>
+```
+```js
+const screen = document.getElementById('screen');
+function seek(t) {
+  // the clip starts at 1.5 s and plays at normal speed; before that it shows its first picture, after the end its last one
+  screen.currentTime = Math.max(0, t - 1.5);          // double speed: Math.max(0, (t - 1.5) * 2)
+  screen.style.opacity = tw(t, 1.2, 0.4);             // keep it invisible until it should appear
+}
+```
+- Set `currentTime` on **every** `seek` call (never "only when it drifted"), and keep it pure like the rest of `seek`: no `play()`, no `ontimeupdate`.
+- Use an **H.264 MP4** (WebM is not opened by After Effects). Keep `muted` unless you want the clip's own sound in After Effects: without `muted` the layer keeps its audio.
+- Position, size, `object-fit` (fill / cover / contain / none), `object-position`, `border-radius`, `box-shadow`, opacity and transforms (scale, rotate, camera moves) all convert. The clip is never stretched unless your CSS stretches it (`object-fit: fill` is the default, so give the box the clip's own aspect ratio, or choose `cover` / `contain`).
+- Normal speed, other speeds (2×, 0.5×) and a start time are read as simple timing. If the page holds the first or last picture, jumps or changes speed, the layer uses **Time Remap** (keyframes on the clip's own time), so it still matches; you can edit those keys in After Effects.
+- A clip that is already on screen at t = 0 needs no opacity trick. A clip that must wait should be hidden (`opacity: 0` or `display: none`) until its start, otherwise its first picture shows from t = 0.
+- Keep clips short and not huge (1080p H.264 is fine). The converter copies the file into the `assets` folder next to the converted video, so After Effects can find it.
 
 ## Sizes and fonts
 - Vertical video: 1080×1920 in the CSS; the comp is created at that size. Keep everything in px.

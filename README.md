@@ -3,7 +3,7 @@
 **Make motion videos with Claude that open in After Effects as native, editable comps.**
 By [AE Flow Tools](https://aeflowtools.com) · version 1.1.1
 
-Ask Claude to *"make it for CodeFlow"*. It writes your video as **one HTML file**. Drop that file on the **CodeFlow panel** in After Effects: the panel converts it in seconds (no AI, no tokens) and you click **Build** to get real comps: shape, text and image layers, precomps, parent layers for camera moves, and true bezier keyframes in the Graph Editor. It looks the same as the video Claude made.
+Ask Claude to *"make it for CodeFlow"*. It writes your video as **one HTML file**. Drop that file on the **CodeFlow panel** in After Effects: the panel converts it in seconds (no AI, no tokens) and you click **Build** to get real comps: shape, text, image, video and audio layers, precomps, parent layers for camera moves, and true bezier keyframes in the Graph Editor. It looks the same as the video Claude made.
 
 - **Nothing to install on your computer for this skill.** Claude just writes a file. The conversion happens in the CodeFlow panel, using the Chrome or Edge you already have.
 - **Text stays text.** Fonts travel with the converted folder, and the panel installs any that are missing.
