@@ -42,6 +42,21 @@ set(el, { opacity: k, transform: `translateY(${lerp(30, 0, k)}px) scale(${lerp(.
 - **Number counters / typing:** change the text in `seek`. Each different text becomes its own layer with its own on-screen range.
 - **Background:** a 2-stop `linear-gradient` plus one or two `radial-gradient(...)` glows. Anything more complex: use an image.
 
+## Sound
+`<audio>` elements in the HTML come into After Effects as audio layers: `<audio id="voice" src="assets/voice.mp3" data-start="0.5" preload="auto"></audio>`. `data-start` is the time in seconds on the video's timeline where the sound begins (default 0); the layer lasts as long as the file (cut at the end of the video). The `id` becomes the layer name. Use WAV or MP3 (After Effects opens those everywhere). Sounds created only in JavaScript (`new Audio()`) are invisible to the converter: always write the tag. Volume, fades and looping are not carried over (set levels in After Effects).
+
+To hear it in the browser preview (browsers need one click on the page before they allow sound), call this from the playback loop, not from `seek`:
+```js
+const sounds = [...document.querySelectorAll('audio')];
+function syncSound(t, on) {
+  for (const a of sounds) {
+    const local = t - (parseFloat(a.dataset.start) || 0);
+    if (!on || local < 0 || local > (a.duration || 1e9)) { if (!a.paused) a.pause(); }
+    else if (a.paused || Math.abs(a.currentTime - local) > 0.3) { a.currentTime = local; a.play().catch(() => {}); }
+  }
+}
+```
+
 ## Sizes and fonts
 - Vertical video: 1080×1920 in the CSS; the comp is created at that size. Keep everything in px.
 - Fonts: name an installed font or give an `@font-face` pointing to a file in `assets/`. Google Fonts through a `<link>` work while the computer is online (static weights 400-900). Text is always converted as real text in the same font; the font file travels with the converted folder, so a colleague can open it too.
@@ -53,6 +68,7 @@ set(el, { opacity: k, transform: `translateY(${lerp(30, 0, k)}px) scale(${lerp(.
 - [ ] words are real text; nothing important is an outlined path or a `<canvas>`
 - [ ] elements named with ids / classes; one wrapper per scene
 - [ ] nothing from the "does not convert" list, or the user has been told
+- [ ] any voice-over / music is an `<audio>` tag with `data-start`
 
 ## What the panel tells the user
 After converting, the panel shows: layers · size · length · time taken, the folder it saved (next to the HTML, called "<Name> (CodeFlow)"), and a "Not converted exactly" list for anything it had to approximate. Mention to the user to read that list.
