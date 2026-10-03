@@ -1,7 +1,7 @@
 {
   "name": "codeflow",
   "displayName": "CodeFlow",
-  "version": "1.1.1",
+  "version": "1.0.0",
   "description": "Make motion videos with Claude as one HTML file that the CodeFlow panel in After Effects turns into native, editable comps in seconds, with no AI and nothing to install. By AE Flow Tools.",
   "author": {
     "name": "AE Flow Tools",
