@@ -33,7 +33,7 @@ Download **[`codeflow-skill.zip`](codeflow-skill.zip)** from this repo and uploa
 
 ## You also need
 
-- the **CodeFlow extension for After Effects, version 1.1 or newer** ([aeflowtools.com](https://aeflowtools.com)),
+- the **CodeFlow extension for After Effects** (free download: [aeflowtools.com/codeflow](https://aeflowtools.com/codeflow); After Effects 2022 or newer),
 - **Google Chrome or Microsoft Edge** installed (free), which the panel uses quietly to read the video.
 
 ## How to use
